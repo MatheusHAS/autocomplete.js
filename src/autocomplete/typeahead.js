@@ -53,12 +53,6 @@ function Typeahead(o) {
   $menu = domElts.menu;
   $hint = domElts.hint;
 
-  if (o.dropdownMenuContainer) {
-    DOM.element(o.dropdownMenuContainer)
-      .css('position', 'relative') // ensure the container has a relative position
-      .append($menu.css('top', '0')); // override the top: 100%
-  }
-
   // #705: if there's scrollable overflow, ie doesn't support
   // blur cancellations when the scrollbar is clicked
   //
@@ -95,7 +89,6 @@ function Typeahead(o) {
     .onSync('closed', this._onClosed, this)
     .onSync('shown', this._onShown, this)
     .onSync('empty', this._onEmpty, this)
-    .onSync('redrawn', this._onRedrawn, this)
     .onAsync('datasetRendered', this._onDatasetRendered, this);
 
   this.input = new Typeahead.Input({input: $input, hint: $hint})
@@ -201,23 +194,6 @@ _.mixin(Typeahead.prototype, {
   },
 
   _onRedrawn: function onRedrawn() {
-    this.$node.css('top', 0 + 'px');
-    this.$node.css('left', 0 + 'px');
-
-    var inputRect = this.$input[0].getBoundingClientRect();
-
-    if (this.autoWidth) {
-      this.$node.css('width', inputRect.width + 'px');
-    }
-
-    var wrapperRect = this.$node[0].getBoundingClientRect();
-
-    var top = inputRect.bottom - wrapperRect.top;
-    this.$node.css('top', top + 'px');
-    var left = inputRect.left - wrapperRect.left;
-    this.$node.css('left', left + 'px');
-
-    this.eventBus.trigger('redrawn');
   },
 
   _onShown: function onShown() {
@@ -370,7 +346,6 @@ _.mixin(Typeahead.prototype, {
 
     if (this.dir !== dir) {
       this.dir = dir;
-      this.$node.css('direction', dir);
       this.dropdown.setLanguageDirection(dir);
     }
   },
@@ -508,20 +483,12 @@ function buildDom(options) {
 
   $input = DOM.element(options.input);
   $wrapper = DOM
-    .element(html.wrapper.replace('%ROOT%', options.cssClasses.root))
-    .css(options.css.wrapper);
+    .element(html.wrapper.replace('%ROOT%', options.cssClasses.root));
 
-  // override the display property with the table-cell value
-  // if the parent element is a table and the original input was a block
-  //  -> https://github.com/algolia/autocomplete.js/issues/16
-  if (!options.appendTo && $input.css('display') === 'block' && $input.parent().css('display') === 'table') {
-    $wrapper.css('display', 'table-cell');
-  }
   var dropdownHtml = html.dropdown.
     replace('%PREFIX%', options.cssClasses.prefix).
     replace('%DROPDOWN_MENU%', options.cssClasses.dropdownMenu);
   $dropdown = DOM.element(dropdownHtml)
-    .css(options.css.dropdown)
     .attr({
       role: 'listbox',
       id: options.listboxId
@@ -529,7 +496,7 @@ function buildDom(options) {
   if (options.templates && options.templates.dropdownMenu) {
     $dropdown.html(_.templatify(options.templates.dropdownMenu)());
   }
-  $hint = $input.clone().css(options.css.hint).css(getBackgroundStyles($input));
+  $hint = $input.clone();
 
   $hint
     .val('')
@@ -582,8 +549,7 @@ function buildDom(options) {
       // Explicitly point to the listbox,
       // which is a list of suggestions (aka options)
       'aria-owns': options.listboxId
-    })
-    .css(options.hint ? options.css.input : options.css.inputWithNoHint);
+    });
 
   // ie7 does not like it when dir is set to auto
   try {
@@ -607,19 +573,6 @@ function buildDom(options) {
     input: $input,
     hint: $hint,
     menu: $dropdown
-  };
-}
-
-function getBackgroundStyles($el) {
-  return {
-    backgroundAttachment: $el.css('background-attachment'),
-    backgroundClip: $el.css('background-clip'),
-    backgroundColor: $el.css('background-color'),
-    backgroundImage: $el.css('background-image'),
-    backgroundOrigin: $el.css('background-origin'),
-    backgroundPosition: $el.css('background-position'),
-    backgroundRepeat: $el.css('background-repeat'),
-    backgroundSize: $el.css('background-size')
   };
 }
 

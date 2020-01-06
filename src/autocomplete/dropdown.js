@@ -190,12 +190,7 @@ _.mixin(Dropdown.prototype, EventEmitter, {
   },
 
   _show: function() {
-    // can't use jQuery#show because $menu is a span element we want
-    // display: block; not dislay: inline;
     this.$container.css('display', 'block');
-
-    this._redraw();
-
     this.trigger('shown');
   },
 

@@ -262,7 +262,7 @@ _.mixin(Input.prototype, EventEmitter, {
   },
 
   getLanguageDirection: function getLanguageDirection() {
-    return (this.$input.css('direction') || 'ltr').toLowerCase();
+    return ('ltr').toLowerCase();
   },
 
   hasOverflow: function hasOverflow() {
@@ -312,20 +312,7 @@ function buildOverflowHelper($input) {
     .css({
       // position helper off-screen
       position: 'absolute',
-      visibility: 'hidden',
-      // avoid line breaks and whitespace collapsing
-      whiteSpace: 'pre',
-      // use same font css as input to calculate accurate width
-      fontFamily: $input.css('font-family'),
-      fontSize: $input.css('font-size'),
-      fontStyle: $input.css('font-style'),
-      fontVariant: $input.css('font-variant'),
-      fontWeight: $input.css('font-weight'),
-      wordSpacing: $input.css('word-spacing'),
-      letterSpacing: $input.css('letter-spacing'),
-      textIndent: $input.css('text-indent'),
-      textRendering: $input.css('text-rendering'),
-      textTransform: $input.css('text-transform')
+      visibility: 'hidden'
     })
     .insertAfter($input);
 }
